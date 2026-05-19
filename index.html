@@ -10,7 +10,7 @@
             --where-grad: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             --when-grad: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
             --what-grad: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --bg-color: #f0f4f8;
+            --bg-color: #ffd49f;
         }
 
         /* HARD LOCK: Prevent any scrollbars from appearing */
@@ -41,7 +41,7 @@
         /* --- Global Layout Settings --- */
         h1 {
             color: #444;
-            margin: 0.5vh 0;
+            margin: 1.5vh 0;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
             font-size: min(2.2rem, 4vh);
             text-align: center;
@@ -49,7 +49,7 @@
 
         p.instruction {
             color: #666;
-            margin: 0 0 1vh 0;
+            margin: 0 0 3vh 0; /* Expanded spacing beneath the title area */
             font-size: min(1rem, 1.8vh);
             text-align: center;
         }
@@ -135,7 +135,7 @@
             border-radius: 12px;
             cursor: grab;
             display: block;
-            touch-action: none; /* Prevents native gestures from causing document scroll */
+            touch-action: none;
         }
 
         #draggable-image:active { cursor: grabbing; }
@@ -210,8 +210,8 @@
         /* --- LAPTOP/DESKTOP OPTIMIZATIONS (Scroll-Free Bounded) --- */
         @media (min-width: 1025px) {
             body { padding: 1vh 2vw; }
-            h1 { font-size: min(2.5rem, 4.5vh); margin-top: 0.5vh; }
-            p.instruction { font-size: min(1.1rem, 2vh); margin-bottom: 1vh; }
+            h1 { font-size: min(2.5rem, 4.5vh); margin-top: 2.5vh; }
+            p.instruction { font-size: min(1.1rem, 2vh); margin-bottom: 3.5vh; } /* Expanded spacing buffer on desktop */
 
             .bins-container { max-width: 1100px; gap: 1.5vw; }
             
@@ -235,12 +235,12 @@
             }
 
             #draggable-image {
-                width: min(190px, 23vh); 
-                height: min(190px, 23vh);
+                width: min(360px, 30vh); 
+                height: min(360px, 30vh);
             }
             .card { padding: 1.2vh; }
 
-            .progress-bar { height: 10px; width: 380px; margin-top: 1vh; }
+            .progress-bar { height: 30px; width: 380px; margin-top: 4vh; }
             .progress-text { font-size: min(1rem, 1.8vh); }
             
             button { font-size: 1.4rem; }
@@ -276,7 +276,7 @@
     <canvas id="fx-canvas"></canvas>
 
     <h1>Wh-Question Sorting Challenge</h1>
-    <p class="instruction">Tap a bin or the picture to hear its name! Drag the picture to the right bin.</p>
+    <p class="instruction">Drag the picture to the correct question word.</p>
 
     <div class="bins-container" id="bins-box">
         <div class="bin" data-category="who" onclick="speakBin('Who')" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
@@ -318,47 +318,49 @@
 
     <script>
         let imageData = [
-            { src: "https://hips.hearstapps.com/hmg-prod/images/portrait-of-a-happy-young-doctor-in-his-clinic-royalty-free-image-1661432441.jpg?crop=0.66698xw:1xh;center,top&resize=640:*", cat: "who", label: "A doctor" },
-            { src: "https://assets.simpleviewinc.com/simpleview/image/upload/c_fill,f_jpg,h_400,q_55,w_399/v1/clients/visitflorida/Palm_Coast_Beach_Old_Salt_Park_Ground_02_2023_NPI_Productions__e3da8374-a766-4bb3-b446-db261673a511.jpg", cat: "where", label: "The beach" },
-            { src: "https://media.istockphoto.com/id/139885445/photo/starry-night.jpg?s=612x612&w=0&k=20&c=r_ztapBFIzBO0KQ3OxlS5nai6HCqG-kbwsuEmVp_E5E=", cat: "when", label: "Night time" },
-            { src: "https://target.scene7.com/is/image/Target/GUEST_48e18b1e-e660-4ba5-8ba5-93d8f972a61a", cat: "what", label: "A bicycle" },
-            { src: "https://media.istockphoto.com/id/501975952/photo/astronaut.jpg?s=612x612&w=0&k=20&c=Y54AsZb1QR0B1rXiLH53l0G0hLfbmrqc8NLgEem7ndo=", cat: "who", label: "An astronaut" },
-            { src: "https://media.istockphoto.com/id/1446199740/photo/path-through-a-sunlit-forest.jpg?s=612x612&w=0&k=20&c=DuozAED7qfI5E6PcVb4bHtFJ_uM_n1duok56j_liLEA=", cat: "where", label: "The forest" },
-            { src: "https://media.istockphoto.com/id/2165698066/photo/funny-snowman-in-knitted-hat.jpg?s=612x612&w=0&k=20&c=jSnhCR6QPiu2MlHP6EI6jLiQ62uksKkg4j5CMCo70Pw=", cat: "when", label: "Winter" },
-            { src: "https://bimbousa.com/sites/default/files/styles/product_full_image/public/2022-07/Receta-Sandwich-de-pollo-a-la-mostaza-Bimbo_0.jpg?itok=9y0pa3Ql", cat: "what", label: "A sandwich" },
-            { src: "https://media.istockphoto.com/id/1313773483/photo/action-portrait-of-male-and-female-firefighting-hose-team.jpg?s=612x612&w=0&k=20&c=yvOeisWZMyaDRdbWhuBsVohoK0TIu0ICJy4KFZv8ODs=", cat: "who", label: "A firefighter" },
-            { src: "https://media.istockphoto.com/id/966578102/photo/kids-in-line-crossing-street-to-get-on-school-bus.jpg?s=612x612&w=0&k=20&c=Y6DMwEux2iT3huHAIZ576S_3-fDzNLetpQQdf7nR5_k=", cat: "where", label: "A school" },
-            { src: "https://media.istockphoto.com/id/1370783671/photo/portrait-of-a-happy-woman-waking-up-and-stretching-in-bed.jpg?s=612x612&w=0&k=20&c=g3xWKu7zkn6GcIrwZmNj3Div6oU_YSQzv29F8kdgm4Y=", cat: "when", label: "Morning" },
-            { src: "https://media.istockphoto.com/id/2178168148/photo/mockup-image-of-a-woman-using-laptop-with-blank-screen-on-wooden-table.jpg?s=612x612&w=0&k=20&c=bPDbm5TXwfEX4BzN5ANkvKTrB2X2yYKoGheULsTEebo=", cat: "what", label: "A laptop" },
-            { src: "https://st5.depositphotos.com/78368394/74555/i/450/depositphotos_745552886-stock-photo-loving-embrace-young-girl-kisses.jpg", cat: "who", label: "A grandmother" },
-            { src: "https://img.freepik.com/free-photo/outer-space-background_53876-88651.jpg?semt=ais_hybrid&w=740&q=80", cat: "where", label: "Outer space" },
-            { src: "https://media.istockphoto.com/id/1038696838/photo/autumn-forest-beautiful-rural-scenery.jpg?s=612x612&w=0&k=20&c=dSgKaX5o7leD7a4jgprpWCVPp7X6_XyXhS9Cl70gIIk=", cat: "when", label: "Autumn" },
-            { src: "https://r2.gear4music.com/media/6/67813/600/preview.jpg", cat: "what", label: "A guitar" },
-            { src: "https://media.istockphoto.com/id/1194692009/photo/cute-happy-7-month-baby-girl-in-diaper-lying-and-playing.jpg?s=612x612&w=0&k=20&c=izwRgpBPObR4y7J2lTk8hyWmIo-Vbe-hSJmYFzgDatA=", cat: "who", label: "A baby" },
-            { src: "https://static.vecteezy.com/system/resources/thumbnails/019/961/772/small/panoramic-view-of-passo-giau-in-the-dolomite-mountains-of-italy-photo.jpg", cat: "where", label: "A mountain" },
-            { src: "https://media.istockphoto.com/id/1031379514/photo/young-school-kids-eating-lunch-talking-at-a-table-together.jpg?s=612x612&w=0&k=20&c=0oZ7r2i0L8sQgAjvVKiTauLvq6GMnSpWFZ4b7no6lyc=", cat: "when", label: "Lunch time" },
-            { src: "https://media.istockphoto.com/id/2167589456/photo/yellow-backpack-opened-isolated-on-white-school-bag-advertisement-design-knapsack-rucksack.jpg?s=612x612&w=0&k=20&c=5B7A5M35ZEcneBbRoLWkIpPcij1HKTdPtkXEm71MMKI=", cat: "what", label: "A backpack" },
-            { src: "https://media.istockphoto.com/id/2163767427/photo/microscope-woman-check-and-virus-research-of-science-study-with-healthcare-scientist-and.jpg?s=612x612&w=0&k=20&c=Rzej2WyclqIqHRl3Bhzjpc9k4qvjUK-P1ucRBtxCQl0=", cat: "who", label: "A scientist" },
-            { src: "https://media.istockphoto.com/id/2045414752/photo/a-small-white-kitchen-with-a-grey-subway-tile-backsplash.jpg?s=612x612&w=0&k=20&c=51iKrCSTRY9UonwlmRgrT1Gg90u53Pbguo_y-RPmVlQ=", cat: "where", label: "The kitchen" },
-            { src: "https://media.istockphoto.com/id/1324640888/photo/a-beautiful-girl-in-the-pool-on-an-inflatable-donut-is-having-fun-on-a-hot-summer-day.jpg?s=612x612&w=0&k=20&c=J0tFkUMMnCIVu86lKqofwVe2giORMwLXNN12pEBNUts=", cat: "when", label: "Summer" },
-            { src: "https://generaltools.com/media/catalog/product/cache/3484951863af3b735b8c89499e76300e/w/s/ws-1001_1000px_1.jpg", cat: "what", label: "A hammer" },
-            { src: "https://media.istockphoto.com/id/666908954/photo/handsome-chef-pouring-olive-oil-on-meal.jpg?s=612x612&w=0&k=20&c=2dU_sMyn3GM2N81m-tMWQ4y5frBp87GQCflUtauJM4k=", cat: "who", label: "A chef" },
-            { src: "https://media.istockphoto.com/id/831651876/photo/bookshelf-in-public-library.jpg?s=612x612&w=0&k=20&c=NlJb0Uh42B1tDR2PqKa9wDp2ENxOPkZ_-6dQmw62KVM=", cat: "where", label: "A library" },
-            { src: "https://marketplace.canva.com/i6hl4/MAGybbi6hl4/1/tl/canva-sunrise-over-mountain-landscape-MAGybbi6hl4.jpg", cat: "when", label: "Sunrise" },
-            { src: "https://media.istockphoto.com/id/182499738/photo/red-umbrella-isolated-on-a-white-background.jpg?s=612x612&w=0&k=20&c=-4DdM6YYgscI7-RrqU_NBRUe-7xdcaHVJvAHi4fqhcM=", cat: "what", label: "An umbrella" },
-            { src: "https://cdn.phenompeople.com/CareerConnectResources/pp/SOUTUS/images/FOKizna600x471-1752695853310.png", cat: "who", label: "A pilot" },
-            { src: "https://media.istockphoto.com/id/863542630/photo/summer-sunset-with-a-red-barn-in-rural-montana-and-rocky-mountains.jpg?s=612x612&w=0&k=20&c=c0-_YxwHBEbwL0SpzPrF_mWGlEtX2GQzPaezpn_o0EY=", cat: "where", label: "A farm" },
-            { src: "https://media.istockphoto.com/id/1407960946/photo/mother-putting-blanket-on-and-stroking-head-for-her-little-girl-daughter-on-bed-in-a-dark.jpg?s=612x612&w=0&k=20&c=ljMTJb3mOvakhzNjw8u6txZZXDcx9-TUqhQAJPQTCmc=", cat: "when", label: "Bedtime" },
-            { src: "https://media.istockphoto.com/id/185278433/photo/black-digital-slr-camera-in-a-white-background.jpg?s=612x612&w=0&k=20&c=OOCbhvOF0W-eVhhrm-TxbgLfbKhFfs4Lprjd7hiQBNU=", cat: "what", label: "A camera" },
-            { src: "https://img.freepik.com/free-vector/regal-king-with-crown-illustration_1308-177407.jpg", cat: "who", label: "A king" },
-            { src: "https://media.istockphoto.com/id/1422474265/photo/desert-wahiba-sands-in-oman-near-east.jpg?s=612x612&w=0&k=20&c=1lgJL_YJRVscR70vQWbhuNPRgJY4aA38lf-LS9bWfAE=", cat: "where", label: "The desert" },
-            { src: "https://media.istockphoto.com/id/1301592082/photo/beautiful-meadow-field-with-fresh-grass-and-yellow-dandelion-flowers-in-nature.jpg?s=612x612&w=0&k=20&c=fbTwYcoItgf2lc6fMx6d53s7qxW8CNVKr_RXVaVbnZM=", cat: "when", label: "Spring" }
+            { src: "images/doctor.jpg", cat: "who", label: "A doctor" },
+            { src: "images/beach.jpg", cat: "where", label: "The beach" },
+            { src: "images/night_time.jpg", cat: "when", label: "Night time" },
+            { src: "images/bicycle.jpg", cat: "what", label: "A bicycle" },
+            { src: "images/astronaut.jpg", cat: "who", label: "An astronaut" },
+            { src: "images/forest.jpg", cat: "where", label: "The forest" },
+            { src: "images/winter.jpg", cat: "when", label: "Winter" },
+            { src: "images/sandwich.jpg", cat: "what", label: "A sandwich" },
+            { src: "images/firefighter.jpg", cat: "who", label: "A firefighter" },
+            { src: "images/school.jpg", cat: "where", label: "A school" },
+            { src: "images/morning.jpg", cat: "when", label: "Morning" },
+            { src: "images/laptop.jpg", cat: "what", label: "A laptop" },
+            { src: "images/grandmother.jpg", cat: "who", label: "A grandmother" },
+            { src: "images/outer_space.jpg", cat: "where", label: "Outer space" },
+            { src: "images/autumn.jpg", cat: "when", label: "Autumn" },
+            { src: "images/guitar.jpg", cat: "what", label: "A guitar" },
+            { src: "images/baby.jpg", cat: "who", label: "A baby" },
+            { src: "images/mountain.jpg", cat: "where", label: "A mountain" },
+            { src: "images/lunchtime.jpg", cat: "when", label: "Lunch time" },
+            { src: "images/backpack.jpg", cat: "what", label: "A backpack" },
+            { src: "images/scientist.jpg", cat: "who", label: "A scientist" },
+            { src: "images/kitchen.jpg", cat: "where", label: "The kitchen" },
+            { src: "images/summer.jpg", cat: "when", label: "Summer" },
+            { src: "images/hammer.jpg", cat: "what", label: "A hammer" },
+            { src: "images/chef.jpg", cat: "who", label: "A chef" },
+            { src: "images/library.jpg", cat: "where", label: "A library" },
+            { src: "images/sunrise.jpg", cat: "when", label: "Sunrise" },
+            { src: "images/umbrella.jpg", cat: "what", label: "An umbrella" },
+            { src: "images/pilot.jpg", cat: "who", label: "A pilot" },
+            { src: "images/farm.jpg", cat: "where", label: "A farm" },
+            { src: "images/bedtime.jpg", cat: "when", label: "Bedtime" },
+            { src: "images/camera.jpg", cat: "what", label: "A camera" },
+            { src: "images/king.jpg", cat: "who", label: "A king" },
+            { src: "images/desert.jpg", cat: "where", label: "The desert" },
+            { src: "images/spring.jpg", cat: "when", label: "Spring" }
         ];
 
         let currentIndex = 0;
         let score = 0;               
         let comboCount = 0;          
         let currentItemFirstTry = true;
+        let preferredVoice = null;
+        let isAnimating = false;
         
         const glowColors = ['#4ade80', '#60a5fa', '#f472b6', '#fbbf24', '#a78bfa'];
 
@@ -384,6 +386,19 @@
             osc.stop(audioCtx.currentTime + 0.2);
         }
 
+        // SCANS FOR PREMIUM CHROME VOICES (Google US/UK English)
+        function loadVoices() {
+            if (typeof speechSynthesis === 'undefined') return;
+            const voices = window.speechSynthesis.getVoices();
+            preferredVoice = voices.find(v => v.name.includes('Google') && v.lang.startsWith('en')) ||
+                             voices.find(v => v.lang === 'en-US') ||
+                             voices.find(v => v.lang.startsWith('en'));
+        }
+
+        if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
+        }
+
         function shuffleImages(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -392,17 +407,26 @@
         }
 
         function initGame() {
+            loadVoices();
             shuffleImages(imageData);
             totalCountDisplay.innerText = imageData.length;
             loadItem();
             setupTouchListeners();
         }
 
-        function speakBin(text) {
+        function speakBin(text, preventClearance = false) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            // Only cancel previous speech patterns if it's not a protected queue voice sequence
+            if (!preventClearance) {
+                window.speechSynthesis.cancel();
+            }
+            
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.9;
-            utterance.pitch = 1.1; 
+            if (preferredVoice) utterance.voice = preferredVoice;
+            
+            utterance.rate = 0.95; 
+            utterance.pitch = 1.0; 
             window.speechSynthesis.speak(utterance);
         }
 
@@ -416,7 +440,6 @@
             if (currentIndex < imageData.length) {
                 currentItemFirstTry = true; 
                 
-                // Clear any layout overrides used during animations
                 imgElement.style.transition = 'none';
                 imgElement.style.transform = 'none';
                 imgElement.style.opacity = '1';
@@ -431,7 +454,7 @@
 
                 setTimeout(() => {
                     speakImage();
-                }, 50);
+                }, 100);
 
             } else {
                 fill.style.width = "100%";
@@ -457,32 +480,37 @@
             feedback.innerText = `🔥 ${comboCount} COMBO! 🔥`;
             binsBox.style.transform = "scale(1.02)"; 
             
-            window.speechSynthesis.cancel();
-            speakBin(`${comboCount} in a row!`);
+            // Tell speakBin to safely push this announcement out without standard user interference
+            speakBin(`${comboCount} in a row!`, true);
 
             setTimeout(() => {
                 document.body.style.backgroundColor = "var(--bg-color)";
                 binsBox.style.transform = "scale(1)";
-            }, 1200);
+            }, 1500);
         }
 
         function verifyMatch(draggedCategory, targetCategory, binElement) {
             if (draggedCategory === targetCategory) {
-                window.speechSynthesis.cancel(); 
                 playSound(600, 'sine'); 
                 feedback.style.color = "#2e7d32";
                 feedback.innerText = "⭐ Correct!";
                 
+                // Fire mid-game confetti burst relative to the correct category bin
+                triggerConfetti(binElement);
+                
+                let nextItemDelay = 500; // Base layout load delay
+
                 if (currentItemFirstTry) {
                     score++;
                     comboCount++; 
                     if (comboCount > 0 && comboCount % 5 === 0) {
                         triggerComboGlow();
+                        nextItemDelay = 1800; // Extended delay protects combo audio announcement from cutoff
                     }
                 }
                 
                 currentIndex++;
-                setTimeout(loadItem, 500);
+                setTimeout(loadItem, nextItemDelay);
             } else {
                 playSound(150, 'sawtooth'); 
                 feedback.style.color = "#d32f2f";
@@ -507,8 +535,6 @@
         function drag(ev) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             ev.dataTransfer.setData("text", imageData[currentIndex].cat);
-            
-            // Mouse dragging fade effect
             setTimeout(() => { imgElement.style.opacity = '0.4'; }, 0);
         }
 
@@ -553,10 +579,8 @@
                     const dX = touch.clientX - startX;
                     const dY = touch.clientY - startY;
                     
-                    // Move card fluidly matching coordinate drift
                     imgElement.style.transform = `translate(${dX}px, ${dY}px)`;
                     
-                    // Bypass card structure to read targeted bin container layer coordinates below
                     imgElement.style.pointerEvents = 'none';
                     const targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
                     imgElement.style.pointerEvents = 'auto';
@@ -580,14 +604,12 @@
                     const targetCategory = activeBin.getAttribute('data-category');
                     
                     if (draggedCategory === targetCategory) {
-                        // Correct touch drop: Collapse and vanish directly inside the bin location!
                         imgElement.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
                         imgElement.style.transform += ' scale(0)';
                         imgElement.style.opacity = '0';
                         
                         verifyMatch(draggedCategory, targetCategory, activeBin);
                     } else {
-                        // Incorrect touch drop: Snap back to center card instantly, then apply shake action
                         imgElement.style.transition = 'transform 0.2s ease';
                         imgElement.style.transform = 'none';
                         imgElement.style.zIndex = '';
@@ -595,7 +617,6 @@
                     }
                     activeBin = null;
                 } else {
-                    // No bin targeted: Snap safely back to home container
                     imgElement.style.transition = 'transform 0.2s ease';
                     imgElement.style.transform = 'none';
                     imgElement.style.zIndex = '';
@@ -615,11 +636,35 @@
             loadItem();
         }
 
-        // FIREWORKS ENGINE
+        // FIREWORKS & CONFETTI ENGINE
         let particles = [];
         let animationId;
         const canvas = document.getElementById('fx-canvas');
         const ctx = canvas.getContext('2d');
+
+        function triggerConfetti(binElement) {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            const rect = binElement.getBoundingClientRect();
+            const startX = rect.left + rect.width / 2;
+            const startY = rect.top + rect.height / 2;
+            
+            for (let i = 0; i < 25; i++) {
+                particles.push({
+                    x: startX,
+                    y: startY,
+                    vx: (Math.random() - 0.5) * 14,
+                    vy: (Math.random() - 0.6) * 14, 
+                    size: Math.random() * 6 + 4,
+                    color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+                    gravity: 0.25
+                });
+            }
+            if (!isAnimating) {
+                animateFX();
+            }
+        }
 
         function startFireworks() {
             canvas.width = window.innerWidth;
@@ -636,27 +681,42 @@
                     gravity: 0.15
                 });
             }
-            animateFX();
+            if (!isAnimating) {
+                animateFX();
+            }
         }
 
         function animateFX() {
+            isAnimating = true;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach((p, i) => {
+            
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
                 p.vx *= 0.99;
                 p.vy += p.gravity;
                 p.x += p.vx;
                 p.y += p.vy;
+                
                 ctx.fillStyle = p.color;
                 ctx.fillRect(p.x, p.y, p.size, p.size);
-                if (p.y > canvas.height) particles.splice(i, 1);
-            });
+                
+                if (p.y > canvas.height || p.x < 0 || p.x > canvas.width) {
+                    particles.splice(i, 1);
+                }
+            }
+
             if (particles.length > 0) {
                 animationId = requestAnimationFrame(animateFX);
+            } else {
+                isAnimating = false;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
         }
 
         function stopFireworks() {
             cancelAnimationFrame(animationId);
+            isAnimating = false;
+            particles = [];
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
 
