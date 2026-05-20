@@ -38,6 +38,15 @@
             box-sizing: border-box;
         }
 
+        /* --- Screen Wrappers --- */
+        #game-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
         /* --- Global Layout Settings --- */
         h1 {
             color: #444;
@@ -49,7 +58,7 @@
 
         p.instruction {
             color: #666;
-            margin: 0 0 3vh 0; /* Expanded spacing beneath the title area */
+            margin: 0 0 3vh 0; 
             font-size: min(1rem, 1.8vh);
             text-align: center;
         }
@@ -173,16 +182,75 @@
             margin-bottom: 0.5vh;
         }
 
-        .hidden { display: none; }
+        .hidden { display: none !important; }
 
+        /* --- Dedicated Full Win Screen Styling --- */
         .win-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
-            padding: 3vh;
+            padding: 2vh;
             animation: popIn 0.5s ease-out;
+            width: 100%;
+            max-width: 860px; 
+            margin: auto;     
         }
 
+        /* Large Fixed Overlay GIF for results view without text blocking */
+        .fluttershy-gif {
+            position: fixed;
+            top: 2vh;
+            left: 2vw;
+            width: min(400px, 22vw);
+            height: auto;
+            z-index: 1000;
+        }
+
+        #win-percentage {
+            font-size: min(3rem, 6vh);
+            font-weight: bold;
+            color: #2e7d32;
+            margin: 1vh 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+            max-width: 500px;
+            margin: 2.5vh auto; 
+        }
+
+        .stats-card {
+            padding: 1.5vh;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            border: 3px solid white;
+            text-align: center;
+        }
+
+        .stats-card h4 {
+            margin: 4px 0;
+            font-size: min(1.3rem, 2.4vh);
+        }
+
+        .stats-card p {
+            margin: 3px 0;
+            font-size: min(1rem, 2vh);
+            font-weight: bold;
+        }
+
+        .val-correct { color: #1b5e20; }
+        .val-incorrect { color: #b71c1c; }
+        .dark-card .val-correct { color: #b9f6ca; }
+        .dark-card .val-incorrect { color: #ff8a80; }
+
         button {
-            padding: 1.5vh 4vw;
+            padding: 1.5vh 5vw;
             background: #4CAF50;
             color: white;
             border: none;
@@ -190,6 +258,8 @@
             cursor: pointer;
             box-shadow: 0 6px 0 #388E3C;
             transition: 0.1s;
+            font-size: min(1.3rem, 2.2vh);
+            margin-top: 1.5vh;
         }
 
         button:active {
@@ -211,7 +281,7 @@
         @media (min-width: 1025px) {
             body { padding: 1vh 2vw; }
             h1 { font-size: min(2.5rem, 4.5vh); margin-top: 2.5vh; }
-            p.instruction { font-size: min(1.1rem, 2vh); margin-bottom: 3.5vh; } /* Expanded spacing buffer on desktop */
+            p.instruction { font-size: min(1.1rem, 2vh); margin-bottom: 3.5vh; } 
 
             .bins-container { max-width: 1100px; gap: 1.5vw; }
             
@@ -244,8 +314,8 @@
             .progress-text { font-size: min(1rem, 1.8vh); }
             
             button { font-size: 1.4rem; }
-            .win-screen h2 { font-size: 2.5rem; }
-            .win-screen p { font-size: 1.3rem; }
+            .win-screen h2 { font-size: 2.8rem; }
+            .win-screen p { font-size: 1.4rem; }
         }
 
         /* Mobile/Portrait Tablet Constraints */
@@ -269,50 +339,92 @@
                 height: min(160px, 22vh);
             }
         }
+
+        @media (min-width: 651px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+                max-width: 800px; 
+            }
+        }
     </style>
 </head>
 <body>
 
     <canvas id="fx-canvas"></canvas>
 
-    <h1>Wh-Question Sorting Challenge</h1>
-    <p class="instruction">Drag the picture to the correct question word.</p>
+    <audio id="win-audio" src="kpop_song.mp3" loop></audio>
 
-    <div class="bins-container" id="bins-box">
-        <div class="bin" data-category="who" onclick="speakBin('Who')" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
-            <span class="icon">👤</span>
-            <h2>Who</h2>
-        </div>
-        <div class="bin" data-category="where" onclick="speakBin('Where')" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
-            <span class="icon">📍</span>
-            <h2>Where</h2>
-        </div>
-        <div class="bin" data-category="when" onclick="speakBin('When')" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
-            <span class="icon">🕒</span>
-            <h2>When</h2>
-        </div>
-        <div class="bin" data-category="what" onclick="speakBin('What')" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
-            <span class="icon">📦</span>
-            <h2>What</h2>
-        </div>
-    </div>
+    <div id="game-screen">
+        <h1>Wh-Question Sorting Challenge</h1>
+        <p class="instruction">Drag the picture to the correct question word.</p>
 
-    <div id="game-wrap" class="image-area">
-        <div id="feedback"></div>
-        <div class="card">
-            <img id="draggable-image" draggable="true" ondragstart="drag(event)" onclick="speakImage()" src="" alt="Item">
+        <div class="bins-container" id="bins-box">
+            <div class="bin" data-category="who" onclick="speakBin('Who')" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                <span class="icon">👤</span>
+                <h2>Who</h2>
+            </div>
+            <div class="bin" data-category="where" onclick="speakBin('Where')" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                <span class="icon">📍</span>
+                <h2>Where</h2>
+            </div>
+            <div class="bin" data-category="when" onclick="speakBin('When')" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                <span class="icon">🕒</span>
+                <h2>When</h2>
+            </div>
+            <div class="bin" data-category="what" onclick="speakBin('What')" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                <span class="icon">📦</span>
+                <h2>What</h2>
+            </div>
         </div>
-        
-        <div class="progress-bar">
-            <div id="progress-fill"></div>
+
+        <div id="game-wrap" class="image-area">
+            <div id="feedback"></div>
+            <div class="card">
+                <img id="draggable-image" draggable="true" ondragstart="drag(event)" onclick="speakImage()" src="" alt="Item">
+            </div>
+            
+            <div class="progress-bar">
+                <div id="progress-fill"></div>
+            </div>
+            <div class="progress-text">Progress: <span id="current-count">1</span> / <span id="total-count">0</span></div>
         </div>
-        <div class="progress-text">Progress: <span id="current-count">1</span> / <span id="total-count">0</span></div>
     </div>
 
     <div id="win-screen" class="win-screen hidden">
-        <span style="font-size: min(5rem, 10vh);">🏆</span>
+        <img src="fluttershy.gif" alt="Fluttershy Cheer" class="fluttershy-gif">
+
+        <span style="font-size: min(5rem, 9vh);">🏆</span>
         <h2 id="win-title">Amazing Job!</h2>
+        <div id="win-percentage">0% Correct</div>
         <p id="win-score"></p>
+        
+        <div class="stats-grid">
+            <div class="stats-card" style="background: var(--who-grad); color: #912c2c;">
+                <span style="font-size: 1.6rem;">👤</span>
+                <h4>Who</h4>
+                <p>Correct: <span id="who-correct" class="val-correct">0</span></p>
+                <p>Incorrect: <span id="who-incorrect" class="val-incorrect">0</span></p>
+            </div>
+            <div class="stats-card" style="background: var(--where-grad); color: #1a5e7a;">
+                <span style="font-size: 1.6rem;">📍</span>
+                <h4>Where</h4>
+                <p>Correct: <span id="where-correct" class="val-correct">0</span></p>
+                <p>Incorrect: <span id="where-incorrect" class="val-incorrect">0</span></p>
+            </div>
+            <div class="stats-card" style="background: var(--when-grad); color: #7a5a1a;">
+                <span style="font-size: 1.6rem;">🕒</span>
+                <h4>When</h4>
+                <p>Correct: <span id="when-correct" class="val-correct">0</span></p>
+                <p>Incorrect: <span id="when-incorrect" class="val-incorrect">0</span></p>
+            </div>
+            <div class="stats-card dark-card" style="background: var(--what-grad); color: white;">
+                <span style="font-size: 1.6rem;">📦</span>
+                <h4 style="color: white;">What</h4>
+                <p>Correct: <span id="what-correct" class="val-correct">0</span></p>
+                <p>Incorrect: <span id="what-incorrect" class="val-incorrect">0</span></p>
+            </div>
+        </div>
+
         <button onclick="resetGame()">Play Again</button>
     </div>
 
@@ -362,6 +474,13 @@
         let preferredVoice = null;
         let isAnimating = false;
         
+        let categoryStats = {
+            who: { correct: 0, incorrect: 0 },
+            where: { correct: 0, incorrect: 0 },
+            when: { correct: 0, incorrect: 0 },
+            what: { correct: 0, incorrect: 0 }
+        };
+        
         const glowColors = ['#4ade80', '#60a5fa', '#f472b6', '#fbbf24', '#a78bfa'];
 
         const imgElement = document.getElementById('draggable-image');
@@ -386,7 +505,6 @@
             osc.stop(audioCtx.currentTime + 0.2);
         }
 
-        // SCANS FOR PREMIUM CHROME VOICES (Google US/UK English)
         function loadVoices() {
             if (typeof speechSynthesis === 'undefined') return;
             const voices = window.speechSynthesis.getVoices();
@@ -416,8 +534,6 @@
 
         function speakBin(text, preventClearance = false) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            
-            // Only cancel previous speech patterns if it's not a protected queue voice sequence
             if (!preventClearance) {
                 window.speechSynthesis.cancel();
             }
@@ -457,18 +573,30 @@
                 }, 100);
 
             } else {
-                fill.style.width = "100%";
-                document.getElementById('game-wrap').classList.add('hidden');
+                document.getElementById('game-screen').classList.add('hidden');
                 document.getElementById('win-screen').classList.remove('hidden');
                 
-                const finalAccuracy = (score / imageData.length) * 100;
-                document.getElementById('win-score').innerText = `You got ${score} out of ${imageData.length} correct on the first try!`;
+                // Fire up the results screen audio track
+                const winAudio = document.getElementById('win-audio');
+                if (winAudio) {
+                    winAudio.play().catch(e => console.log("Audio presentation initialized safely:", e));
+                }
+
+                const finalAccuracy = Math.round((score / imageData.length) * 100);
+                document.getElementById('win-percentage').innerText = `${finalAccuracy}% Correct`;
+                document.getElementById('win-score').innerText = `You scored ${score} out of ${imageData.length} objects correctly on the first try!`;
                 
+                ['who', 'where', 'when', 'what'].forEach(cat => {
+                    document.getElementById(`${cat}-correct`).innerText = categoryStats[cat].correct;
+                    document.getElementById(`${cat}-incorrect`).innerText = categoryStats[cat].incorrect;
+                });
+
                 if (finalAccuracy >= 80) {
                     document.getElementById('win-title').innerText = "🏆 Master Sorter!";
                     startFireworks();
                     setTimeout(() => speakBin("Master Sorter! Amazing job!"), 1000);
                 } else {
+                    document.getElementById('win-title').innerText = "🎉 Great Job!";
                     setTimeout(() => speakBin("Great job! You finished!"), 1000);
                 }
             }
@@ -480,7 +608,6 @@
             feedback.innerText = `🔥 ${comboCount} COMBO! 🔥`;
             binsBox.style.transform = "scale(1.02)"; 
             
-            // Tell speakBin to safely push this announcement out without standard user interference
             speakBin(`${comboCount} in a row!`, true);
 
             setTimeout(() => {
@@ -490,22 +617,24 @@
         }
 
         function verifyMatch(draggedCategory, targetCategory, binElement) {
+            const currentCat = imageData[currentIndex].cat;
+            
             if (draggedCategory === targetCategory) {
                 playSound(600, 'sine'); 
                 feedback.style.color = "#2e7d32";
                 feedback.innerText = "⭐ Correct!";
                 
-                // Fire mid-game confetti burst relative to the correct category bin
                 triggerConfetti(binElement);
                 
-                let nextItemDelay = 500; // Base layout load delay
+                let nextItemDelay = 500;
 
                 if (currentItemFirstTry) {
                     score++;
                     comboCount++; 
+                    categoryStats[currentCat].correct++;
                     if (comboCount > 0 && comboCount % 5 === 0) {
                         triggerComboGlow();
-                        nextItemDelay = 1800; // Extended delay protects combo audio announcement from cutoff
+                        nextItemDelay = 1800;
                     }
                 }
                 
@@ -515,10 +644,29 @@
                 playSound(150, 'sawtooth'); 
                 feedback.style.color = "#d32f2f";
                 feedback.innerText = "❌ Try again!";
+                
+                if (currentItemFirstTry) {
+                    categoryStats[currentCat].incorrect++;
+                }
                 currentItemFirstTry = false; 
                 comboCount = 0; 
                 imgElement.style.animation = "shake 0.3s";
                 setTimeout(() => imgElement.style.animation = "", 300);
+
+                let correctiveHint = "";
+                if (currentCat === "who") {
+                    correctiveHint = "This is a person.";
+                } else if (currentCat === "where") {
+                    correctiveHint = "This is a place.";
+                } else if (currentCat === "when") {
+                    correctiveHint = "This is a time.";
+                } else if (currentCat === "what") {
+                    correctiveHint = "This is a thing.";
+                }
+
+                if (correctiveHint) {
+                    speakBin(correctiveHint);
+                }
             }
         }
 
@@ -626,12 +774,26 @@
 
         function resetGame() {
             window.speechSynthesis.cancel();
+            
+            // Cease score track playback and rewind to start frame
+            const winAudio = document.getElementById('win-audio');
+            if (winAudio) {
+                winAudio.pause();
+                winAudio.currentTime = 0;
+            }
+
             currentIndex = 0;
             score = 0;
             comboCount = 0;
+            categoryStats = {
+                who: { correct: 0, incorrect: 0 },
+                where: { correct: 0, incorrect: 0 },
+                when: { correct: 0, incorrect: 0 },
+                what: { correct: 0, incorrect: 0 }
+            };
             stopFireworks();
             shuffleImages(imageData);
-            document.getElementById('game-wrap').classList.remove('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
             document.getElementById('win-screen').classList.add('hidden');
             loadItem();
         }
